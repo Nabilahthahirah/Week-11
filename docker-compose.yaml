@@ -1,0 +1,37 @@
+version: '3'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres:14.9-alpine3.18
+    restart: always
+    networks:
+      - app-tier
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=todo
+      - POSTGRES_PASSWORD=syara321
+      - PGPORT=5438
+    ports:
+      - "5438:5438"
+  app:
+    restart: on-failure
+    build: .
+    networks:
+      - app-tier
+    depends_on:
+      - postgres
+    ports: 
+      - "8081:8081"
+    environment:
+      - NODE_ENV=docker
+      - PORT=8081
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=todo
+      - POSTGRES_PASSWORD=syara321
+      - POSTGRES_DB_TEST=todo_test
+      - POSTGRES_HOST=postgres
+      - CUSTOM_PORT=5438
